@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/frameLayout"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content">
+
+
+    <ImageView
+        android:id="@+id/widget_layout"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:clickable="true"
+        android:maxWidth="108dp"
+        android:maxHeight="108dp"
+        android:minWidth="70dp"
+        android:minHeight="70dp"
+        android:src="@mipmap/ic_launcher_tubeget">
+
+    </ImageView>
+
+    <ImageView
+        android:id="@+id/widget_layout_notification"
+        android:layout_width="12dp"
+        android:layout_height="12dp"
+        android:src="@drawable/circle_shape"
+        android:layout_gravity="bottom|right"
+        android:layout_marginRight="4dp"
+        android:layout_marginBottom="4dp">
+
+    </ImageView>
+
+</FrameLayout>

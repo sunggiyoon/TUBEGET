@@ -1,0 +1,11 @@
+<appwidget-provider
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:minWidth="40dp"
+    android:minHeight="40dp"
+    android:updatePeriodMillis="7200000"
+    android:previewImage="@mipmap/ic_launcher_tubeget_round"
+    android:initialLayout="@layout/widget_layout"
+    android:configure="com.giyoon.widgetforyoutube.widget.WidgetConfigure"
+    android:widgetCategory="home_screen"
+    android:resizeMode="none">
+</appwidget-provider>

@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/mobile_navigation"
+    app:startDestination="@+id/nav_channels">
+
+    <fragment
+        android:id="@+id/nav_channels"
+        android:name="com.giyoon.widgetforyoutube.manager.ui.channels.ChannelsFragment"
+        android:label="@string/menu_channels"
+        tools:layout="@layout/fragment_home" />
+
+    <fragment
+        android:id="@+id/nav_playlist"
+        android:name="com.giyoon.widgetforyoutube.manager.ui.playlist.PlaylistFragment"
+        android:label="@string/menu_playlist"
+        tools:layout="@layout/fragment_playlist" />
+
+    <fragment
+        android:id="@+id/nav_share"
+        android:name="com.giyoon.widgetforyoutube.manager.ui.share.ShareFragment"
+        android:label="@string/menu_share"
+        tools:layout="@layout/fragment_share" />
+
+    <fragment
+        android:id="@+id/nav_send"
+        android:name="com.giyoon.widgetforyoutube.manager.ui.send.SendFragment"
+        android:label="@string/menu_send"
+        tools:layout="@layout/fragment_send" />
+</navigation>
