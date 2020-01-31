@@ -14,13 +14,13 @@ android {
     sourceSets {
         main {
             res.srcDirs =
-            [
-                    'src/main/res/layouts/layout_widget',
-                    'src/main/res/layouts/layout_share',
-                    'src/main/res/layouts/layout_main',
-                    'src/main/res/layouts',
-                    'src/main/res/'
-            ]
+                    [
+                            'src/main/res/layouts/layout_widget',
+                            'src/main/res/layouts/layout_share',
+                            'src/main/res/layouts/layout_main',
+                            'src/main/res/layouts',
+                            'src/main/res/'
+                    ]
 
         }
     }

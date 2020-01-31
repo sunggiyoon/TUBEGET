@@ -4,22 +4,9 @@
     <string name="dialog_reset_account">You\'ll lose widgets of homescreen</string>
     <string name="dialog_reset_account_yes">Reset</string>
     <string name="dialog_reset_account_no">Cancel</string>
-    <string name="title_activity_main">TUBEGET</string>
-    <string name="navigation_drawer_open">Open navigation drawer</string>
-    <string name="navigation_drawer_close">Close navigation drawer</string>
-    <string name="nav_header_title">Android Studio</string>
-    <string name="nav_header_subtitle">android.studio@android.com</string>
-    <string name="nav_header_desc">Navigation header</string>
-    <string name="action_settings">Settings</string>
+    <string name="hello_blank_fragment">Hello this is my blank Fragment</string>
+    <string name="title_activity_main">activity Main</string>
+    <string name="title_activity_share">activity Share</string>
+    <string name="cancel_message">No channel added</string>
 
-    <string name="menu_channels">Channels</string>
-    <string name="menu_playlist">Playlist</string>
-    <string name="menu_slideshow">Slideshow</string>
-    <string name="menu_tools">Tools</string>
-    <string name="menu_share">Share</string>
-    <string name="menu_send">Send</string>
-    <string name="title_activity_share">ShareActivity</string>
-    <string name="title_Channels">Channels</string>
-    <string name="title_dashboard">Dashboard</string>
-    <string name="title_notifications">Notifications</string>
 </resources>
