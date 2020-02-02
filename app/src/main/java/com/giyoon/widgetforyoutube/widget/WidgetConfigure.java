@@ -132,7 +132,7 @@ public class WidgetConfigure extends AppCompatActivity implements EasyPermission
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.menu_configure,menu);
+        getMenuInflater().inflate(R.menu.widget_configure,menu);
         return true;
     }
 

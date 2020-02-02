@@ -5,8 +5,16 @@
     <string name="dialog_reset_account_yes">Reset</string>
     <string name="dialog_reset_account_no">Cancel</string>
     <string name="hello_blank_fragment">Hello this is my blank Fragment</string>
-    <string name="title_activity_main">activity Main</string>
-    <string name="title_activity_share">activity Share</string>
+    <string name="title_activity_main">TUBEGET</string>
+    <string name="title_activity_share">Choose Folder</string>
     <string name="cancel_message">No channel added</string>
-
+    <string name="channel_saved">Channel Added Successfully</string>
+    <string name="alert_file_exist">Channel Already Exist</string>
+    <string name="create_new_folder">Create new folder</string>
+    <string name="create_new_folder_message">Please Enter New Folder Name</string>
+    <string name="confirm">Confirm</string>
+    <string name="cancel">Cancel</string>
+    <string name="edit">Edit</string>
+    <string name="delete">Delete</string>
+    <string name="cannot_change">Changing Channel Title is not available</string>
 </resources>
