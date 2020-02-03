@@ -4,7 +4,7 @@
     tools:context="com.giyoon.myapplication.WidgetConfigure">
     <item
         android:id="@+id/action_account"
-        android:title="Change Google Account"
+        android:title="@string/action_account"
         app:showAsAction="never">
     </item>
 </menu>

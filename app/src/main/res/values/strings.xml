@@ -17,4 +17,8 @@
     <string name="edit">Edit</string>
     <string name="delete">Delete</string>
     <string name="cannot_change">Changing Channel Title is not available</string>
+    <string name="action_new_folder">Create New Folder</string>
+    <string name="action_settings">Setting</string>
+    <string name="action_account">Change Google Account</string>
+    <string name="alert_select_folder">Choose Folder. Not a channel.</string>
 </resources>

@@ -2,6 +2,7 @@ package com.giyoon.widgetforyoutube.share;
 
 import android.Manifest;
 import android.accounts.AccountManager;
+import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
@@ -10,6 +11,11 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.view.View;
+import android.widget.Button;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -30,6 +36,7 @@ import com.google.api.services.youtube.YouTube;
 import com.google.api.services.youtube.YouTubeScopes;
 import com.google.api.services.youtube.model.ChannelListResponse;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
@@ -42,7 +49,9 @@ public class ShareActivity extends AppCompatActivity implements EasyPermissions.
     public static String mChannelId;
     public static String mTitle;
     public static String mUrl;
+    public static String mThumbnailUrl;
     ShareFragment mFragment;
+    ShareAdapter mAdapter;
 
     private static final String[] SCOPES = {YouTubeScopes.YOUTUBE_READONLY};
     GoogleAccountCredential mCredential;
@@ -67,7 +76,19 @@ public class ShareActivity extends AppCompatActivity implements EasyPermissions.
         Intent intent = getIntent();
         Bundle extras = intent.getExtras();
         mChannelInfo = extras.getString(Intent.EXTRA_TEXT);
-        mChannelId = mChannelInfo.substring(mChannelInfo.lastIndexOf("/")+1);
+
+        String rawSelector = mChannelInfo.substring(0,mChannelInfo.lastIndexOf("/"));
+        String selector = rawSelector.substring(rawSelector.lastIndexOf("/")+1);
+        if ("user".equals(selector)){
+            mChannelId = mChannelInfo.substring(mChannelInfo.lastIndexOf("/")+1);
+            mUrl = null;
+        }else if("channel".equals(selector)){
+            mChannelId = null;
+            mUrl = mChannelInfo.substring(mChannelInfo.lastIndexOf("/")+1);
+        }else{
+            Toast.makeText(ShareActivity.this,"분기에서 에러남", Toast.LENGTH_LONG).show();
+            finish();
+        }
 
     }
 
@@ -80,6 +101,61 @@ public class ShareActivity extends AppCompatActivity implements EasyPermissions.
 
     }
 
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_share,menu);
+        return true;
+    }
+
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        switch (item.getItemId()){
+            case R.id.action_create_new_folder:
+
+                FragmentManager fragmentManager = getSupportFragmentManager();
+                ShareFragment shareFragment = (ShareFragment) fragmentManager.findFragmentById(R.id.share_fragment);
+                mAdapter = shareFragment.getmAdapter();
+
+                final AlertDialog.Builder alt_bld = new AlertDialog.Builder(ShareActivity.this);
+                View view = LayoutInflater.from(ShareActivity.this).inflate(R.layout.dialogue_box,null,false);
+                alt_bld.setView(view);
+                final com.google.android.material.textfield.TextInputEditText editText
+                        = view.findViewById(R.id.edittext_dialog_id);
+                final Button button_save
+                        = view.findViewById(R.id.confirm_button);
+                final Button button_cancel
+                        = view.findViewById(R.id.cancel_button);
+
+                final AlertDialog dialog = alt_bld.create();
+
+                button_save.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        String createPath = mAdapter.getCurrentPath()+"/"+editText.getText().toString();
+                        File createFolder = new File(createPath);
+                        if(!createFolder.exists()){
+                            createFolder.mkdir();
+                        }
+                        mAdapter.refresh();
+                        dialog.dismiss();
+                    }
+                });
+
+                button_cancel.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        dialog.dismiss();
+                    }
+                });
+                dialog.show();
+                break;
+            case R.id.action_settings :
+            default:
+                break;
+        }
+        return true;
+    }
 
     public void onCancelButtonClicked(){
         finish();
@@ -297,8 +373,13 @@ public class ShareActivity extends AppCompatActivity implements EasyPermissions.
         private ChannelListResponse getDataFromApi() throws  IOException{
             YouTube.Channels.List request;
             request = mService.channels().list("snippet");
-            ChannelListResponse response = request.setForUsername(mChannelId).execute();
-            return response;
+            if(mChannelId != null){
+                ChannelListResponse response = request.setForUsername(mChannelId).execute();
+                return  response;
+            }else {
+                ChannelListResponse response = request.setId(mUrl).execute();
+                return response;
+            }
         }
 
         @Override
@@ -315,7 +396,7 @@ public class ShareActivity extends AppCompatActivity implements EasyPermissions.
         @Override
         protected void onPostExecute(ChannelListResponse channelListResponse) {
             mTitle = channelListResponse.getItems().get(0).getSnippet().getTitle();
-            mUrl = channelListResponse.getItems().get(0).getSnippet().getThumbnails().getDefault().getUrl();
+            mThumbnailUrl = channelListResponse.getItems().get(0).getSnippet().getThumbnails().getDefault().getUrl();
         }
     }
 }
