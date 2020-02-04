@@ -416,17 +416,17 @@ public class WidgetConfigure extends AppCompatActivity implements EasyPermission
                 Log.d(TAG,"백그라운드 완료 후, 메인 스레드 재시작");
                 //리사이클러뷰에 구독정보를 붙인다.
                 List<Subscription> channelList = output.getItems();
-                final ListAdapter adapter = new ListAdapter(channelList);
+                final WidgetAdapter adapter = new WidgetAdapter(channelList, getApplicationContext());
                 Log.d(TAG,"어댑터 생성 및 쿼리응답 바인딩 완료");
                 recyclerView.setAdapter(adapter);
                 Log.d(TAG,"리사이클러뷰에 어댑터 등록 완료");
-                adapter.setOnItemClickListener(new ListAdapter.OnItemClickListener() {
+                adapter.setOnItemClickListener(new WidgetAdapter.OnItemClickListener() {
                     @Override
                     public void onItemClick(View v, int pos) {
 
                         if(getIntent().hasExtra("from")){
                             Intent intent = new Intent();
-                            intent.putExtra("mChannelInfo","https://www.youtube.com/channel/"+adapter.getmItems(pos).getSnippet().getChannelId());
+                            intent.putExtra("mChannelInfo","https://www.youtube.com/channel/"+adapter.getmItems(pos).getSnippet().getResourceId().getChannelId());
                             intent.putExtra("mThumbnailUri",adapter.getmItems(pos).getSnippet().getThumbnails().getDefault().getUrl());
                             intent.putExtra("mTitle",adapter.getmItems(pos).getSnippet().getTitle());
                             setResult(RESULT_OK,intent);

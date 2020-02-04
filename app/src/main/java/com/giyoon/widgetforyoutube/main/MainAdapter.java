@@ -33,6 +33,7 @@ import java.util.Collections;
 import java.util.Comparator;
 
 import static com.giyoon.widgetforyoutube.share.ShareAdapter.deleteFolder;
+import static com.giyoon.widgetforyoutube.share.ShareAdapter.deleteFile;
 
 public class MainAdapter extends RecyclerView.Adapter<MainAdapter.ViewHolder> {
 
@@ -57,6 +58,10 @@ public class MainAdapter extends RecyclerView.Adapter<MainAdapter.ViewHolder> {
      * 상위 경로
      */
     private String mUpperPath;
+    /**
+     * 프래그먼트 함수 콜백
+     */
+    private Updater mCallback;
 
     //아이템 뷰를 저장하는 뷰홀더 클래스.
     public class ViewHolder extends RecyclerView.ViewHolder implements View.OnCreateContextMenuListener, View.OnClickListener{
@@ -97,7 +102,7 @@ public class MainAdapter extends RecyclerView.Adapter<MainAdapter.ViewHolder> {
                 }
             }else {
                 if (fullPath.equals(mUpperPath)) {
-                    prevPath(path);
+                    prevPath();
                 } else {
                     nextPath(path);
                 }
@@ -149,8 +154,13 @@ public class MainAdapter extends RecyclerView.Adapter<MainAdapter.ViewHolder> {
                         break;
 
                     case 1002:
-                        deleteFolder(mList.get(getAdapterPosition()).getAbsolutePath());
-                        refresh();
+                        if(mList.get(getAdapterPosition()).isDirectory()) {
+                            deleteFolder(mList.get(getAdapterPosition()).getAbsolutePath());
+                            refresh();
+                        }else{
+                            deleteFile(mList.get(getAdapterPosition()).getAbsolutePath());
+                            refresh();
+                        }
                         break;
                 }
                 return true;
@@ -159,12 +169,13 @@ public class MainAdapter extends RecyclerView.Adapter<MainAdapter.ViewHolder> {
     }
 
     //생성자에서 데이터 리스트 객체를 전달받음.
-    MainAdapter(Context context, String rootFolderPath){
+    MainAdapter(Context context, String rootFolderPath, Updater listener){
 
         this.mRootFolderPath = rootFolderPath;
         this.mContext = context;
         this.mList = new ArrayList<File>();
         this.mCurrentPath = null;
+        this.mCallback = listener;
 
         init();
 
@@ -270,6 +281,7 @@ public class MainAdapter extends RecyclerView.Adapter<MainAdapter.ViewHolder> {
         }
         updateCurrentPath();
         updateUpperPath();
+        this.mCallback.pathUpdater(mCurrentPath.substring(mRootFolderPath.length()));
         return true;
     }
 
@@ -315,6 +327,7 @@ public class MainAdapter extends RecyclerView.Adapter<MainAdapter.ViewHolder> {
                 return 1;
             }
         });
+        this.mCallback.pathUpdater(mCurrentPath.substring(mRootFolderPath.length()));
         this.notifyDataSetChanged();
     }
 
@@ -322,23 +335,25 @@ public class MainAdapter extends RecyclerView.Adapter<MainAdapter.ViewHolder> {
         return mCurrentPath;
     }
 
+    public String getRootPath() { return mRootFolderPath; }
+
     public void updateUpperPath(){
         mUpperPath = mCurrentPath.substring(0,mCurrentPath.lastIndexOf("/"));
     }
 
-    public void prevPath(String str){
+    public void prevPath(){
 
         int lastSlashPosition = mCurrentPath.lastIndexOf("/");
         String prevPath = mCurrentPath.substring(0,lastSlashPosition);
         updateCurrentPathTo(prevPath);
-
+        this.mCallback.pathUpdater(mCurrentPath.substring(mRootFolderPath.length()));
     }
 
     public void nextPath(String str){
 
         String nextPath = mCurrentPath+"/"+str;
         updateCurrentPathTo(nextPath);
-
+        this.mCallback.pathUpdater(mCurrentPath.substring(mRootFolderPath.length()));
     }
     public void updateCurrentPath(){
         mCurrentPath = mRootFolderPath;
@@ -390,4 +405,5 @@ public class MainAdapter extends RecyclerView.Adapter<MainAdapter.ViewHolder> {
         });
         this.notifyDataSetChanged();
     }
+
 }

@@ -2,6 +2,7 @@ package com.giyoon.widgetforyoutube.share;
 
 import android.app.AlertDialog;
 import android.content.Context;
+import android.net.Uri;
 import android.view.ContextMenu;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -17,9 +18,15 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.RequestOptions;
 import com.giyoon.widgetforyoutube.R;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -138,8 +145,13 @@ public class ShareAdapter extends RecyclerView.Adapter<ShareAdapter.ViewHolder> 
                         break;
                     // 삭제 메뉴
                     case 1002:
-                        deleteFolder(mList.get(getAdapterPosition()).getAbsolutePath());
-                        refresh();
+                        if(mList.get(getAdapterPosition()).isDirectory()) {
+                            deleteFolder(mList.get(getAdapterPosition()).getAbsolutePath());
+                            refresh();
+                        }else{
+                            deleteFile(mList.get(getAdapterPosition()).getAbsolutePath());
+                            refresh();
+                        }
                         break;
                 }
                 return true;
@@ -188,8 +200,23 @@ public class ShareAdapter extends RecyclerView.Adapter<ShareAdapter.ViewHolder> 
                 holder.textView.setText(item.getName());
             }
         }else{
-            holder.imageView.setImageResource(R.mipmap.ic_launcher_tubeget);
-            holder.textView.setText(item.getName());
+            try {
+                FileReader fileReader = new FileReader(item);
+                BufferedReader bufReader = new BufferedReader(fileReader);
+                String line01 = bufReader.readLine();
+                String line02 = bufReader.readLine();
+                Uri mThumbnailUri = Uri.parse(line02);
+
+                Glide.with(mContext).load(mThumbnailUri)
+                        .apply(new RequestOptions().circleCrop())
+                        .into(holder.imageView);
+                holder.textView.setText(item.getName());
+
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
     }
 
@@ -410,5 +437,12 @@ public class ShareAdapter extends RecyclerView.Adapter<ShareAdapter.ViewHolder> 
         } catch (Exception e) {
             e.getStackTrace();
         }
+    }
+
+    public static void deleteFile(String path){
+
+        File file = new File(path);
+        file.delete();
+
     }
 }

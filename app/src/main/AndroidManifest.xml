@@ -14,6 +14,9 @@
         android:roundIcon="@mipmap/ic_launcher_tubeget_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
+        <meta-data
+            android:name="com.google.android.gms.ads.APPLICATION_ID"
+            android:value="ca-app-pub-1205901638135060~5760068653"/>
         <activity
             android:name=".main.MainActivity"
         android:label="@string/title_activity_main">
