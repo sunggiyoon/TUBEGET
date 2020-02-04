@@ -110,20 +110,25 @@ public class WidgetConfigure extends AppCompatActivity implements EasyPermission
 
         Log.d(TAG,"화면 구성 완료");
 
+
         //앱위젯매니저에서 구성하는 위젯의 아이디를 부여받는다
         Intent intent = getIntent();
-        Bundle extras = intent.getExtras();
-        if(extras != null){
-            appWidgetId = extras.getInt(AppWidgetManager.EXTRA_APPWIDGET_ID, AppWidgetManager.INVALID_APPWIDGET_ID);
-            Log.d(TAG,"앱위젯 아이디 받아옴");
-        }
+        if(intent.hasExtra("from")) {
+            //메인 액티비티에서 온 경우 아래 코드를 건너 뛴다.
+        }else{
+            // 위젯 추가 액티비티에서 온 경우 아래 코드를 한다.
+            Bundle extras = intent.getExtras();
+            if (extras != null) {
+                appWidgetId = extras.getInt(AppWidgetManager.EXTRA_APPWIDGET_ID, AppWidgetManager.INVALID_APPWIDGET_ID);
+                Log.d(TAG, "앱위젯 아이디 받아옴");
+            }
 
-        // 앱위젯매니저에서 아이디를 부여받지 못하면 구성화면을 종료시킨다 (위젯 생성되지 않음)
-        if(appWidgetId == AppWidgetManager.INVALID_APPWIDGET_ID){
-            Log.d(TAG, "앱위젯 아이디 받기 실패");
-            finish();
+            // 앱위젯매니저에서 아이디를 부여받지 못하면 구성화면을 종료시킨다 (위젯 생성되지 않음)
+            if (appWidgetId == AppWidgetManager.INVALID_APPWIDGET_ID) {
+                Log.d(TAG, "앱위젯 아이디 받기 실패");
+                finish();
+            }
         }
-
         //구글 계정 인증 획득한다.
         mCredential = GoogleAccountCredential.usingOAuth2(getApplicationContext(), Arrays.asList(SCOPES)).setBackOff(new ExponentialBackOff());
         getResultsFromApi();
@@ -132,7 +137,7 @@ public class WidgetConfigure extends AppCompatActivity implements EasyPermission
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.menu_configure,menu);
+        getMenuInflater().inflate(R.menu.widget_configure,menu);
         return true;
     }
 
@@ -402,7 +407,7 @@ public class WidgetConfigure extends AppCompatActivity implements EasyPermission
         }
 
         @Override
-        protected void onPostExecute(SubscriptionListResponse output) {
+        protected void onPostExecute(final SubscriptionListResponse output) {
             progressBar.setVisibility(View.INVISIBLE);
             if(output == null | output.size() == 0){
                 Toast.makeText(getApplicationContext(),"No Results returned",Toast.LENGTH_LONG).show();
@@ -411,68 +416,74 @@ public class WidgetConfigure extends AppCompatActivity implements EasyPermission
                 Log.d(TAG,"백그라운드 완료 후, 메인 스레드 재시작");
                 //리사이클러뷰에 구독정보를 붙인다.
                 List<Subscription> channelList = output.getItems();
-                final ListAdapter adapter = new ListAdapter(channelList);
+                final WidgetAdapter adapter = new WidgetAdapter(channelList, getApplicationContext());
                 Log.d(TAG,"어댑터 생성 및 쿼리응답 바인딩 완료");
                 recyclerView.setAdapter(adapter);
                 Log.d(TAG,"리사이클러뷰에 어댑터 등록 완료");
-                adapter.setOnItemClickListener(new ListAdapter.OnItemClickListener() {
+                adapter.setOnItemClickListener(new WidgetAdapter.OnItemClickListener() {
                     @Override
                     public void onItemClick(View v, int pos) {
-                        final Context context = WidgetConfigure.this;
+
+                        if(getIntent().hasExtra("from")){
+                            Intent intent = new Intent();
+                            intent.putExtra("mChannelInfo","https://www.youtube.com/channel/"+adapter.getmItems(pos).getSnippet().getResourceId().getChannelId());
+                            intent.putExtra("mThumbnailUri",adapter.getmItems(pos).getSnippet().getThumbnails().getDefault().getUrl());
+                            intent.putExtra("mTitle",adapter.getmItems(pos).getSnippet().getTitle());
+                            setResult(RESULT_OK,intent);
+                            finish();
+                        }else {
+
+                            final Context context = WidgetConfigure.this;
+
+                            Bitmap mBitmap = adapter.getBitmap(pos);
+                            Bitmap mCroppedBitmap = null;
+                            try {
+                                mCroppedBitmap = getCroppedBitmap(mBitmap);
+
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
+
+                            String szAppWidgetId = String.valueOf(appWidgetId);
+                            SharedPreferences pref = getSharedPreferences("YOUTUBE" + szAppWidgetId, MODE_PRIVATE);
+                            SharedPreferences.Editor es = pref.edit();
+
+                            es.putString("channelTitle", adapter.getmItems(pos).getSnippet().getTitle());
+                            es.putString("channelThumbnail", adapter.getmItems(pos).getSnippet().getThumbnails().getDefault().getUrl());
+                            es.putString("channelId", adapter.getmItems(pos).getSnippet().getResourceId().getChannelId());
+                            es.putString("channelPublishedAt", adapter.getmItems(pos).getSnippet().getPublishedAt().toString());
+                            es.putString("channelThumbnailBitmap", BitmapToString(mCroppedBitmap));
+
+                            es.apply();
 
 
-                        Bitmap mBitmap = adapter.getBitmap(pos);
-                        Bitmap mCroppedBitmap = null;
-                        try {
-                            mCroppedBitmap = getCroppedBitmap(mBitmap);
+                            BroadcastReceiver br = new WidgetProvider();
+                            IntentFilter filter = new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION);
+                            filter.addAction(WIDGET_CLICK);
+                            getApplicationContext().registerReceiver(br, filter);
 
-                        } catch (Exception e) {
-                            e.printStackTrace();
+                            Intent intent = new Intent(WIDGET_CLICK);
+                            intent.putExtra("Widget Id", appWidgetId);
+                            PendingIntent pendingIntent = PendingIntent.getBroadcast(context, appWidgetId, intent, PendingIntent.FLAG_IMMUTABLE);
+
+
+                            // 앱구성을 완료한다.
+                            AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(context);
+                            RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.widget_layout);
+                            views.setOnClickPendingIntent(R.id.widget_layout, pendingIntent);
+                            views.setImageViewBitmap(R.id.widget_layout, mCroppedBitmap);
+                            views.setViewVisibility(R.id.widget_layout_notification, View.INVISIBLE);
+
+                            appWidgetManager.updateAppWidget(appWidgetId, views);
+                            Log.d(TAG, "앱구성을 완료함");
+
+                            // 앱 구성 반환 인텐트를 만든다.
+                            Intent resultValue = new Intent();
+                            resultValue.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId);
+                            setResult(RESULT_OK, resultValue);
+                            Log.d(TAG, "앱 구성 반환 인텐트를 설정 완료하고 구성액티비티 종료함");
+                            finish();
                         }
-
-                        String szAppWidgetId = String.valueOf(appWidgetId);
-                        SharedPreferences pref = getSharedPreferences("YOUTUBE"+szAppWidgetId,MODE_PRIVATE);
-                        SharedPreferences.Editor es = pref.edit();
-
-                        es.putString("channelTitle",adapter.getmItems(pos).getSnippet().getTitle());
-                        es.putString("channelThumbnail", adapter.getmItems(pos).getSnippet().getThumbnails().getDefault().getUrl());
-                        es.putString("channelId",adapter.getmItems(pos).getSnippet().getResourceId().getChannelId());
-                        es.putString("channelPublishedAt",adapter.getmItems(pos).getSnippet().getPublishedAt().toString());
-                        es.putString("channelThumbnailBitmap",BitmapToString(mCroppedBitmap));
-
-                        es.apply();
-
-
-                        BroadcastReceiver br =new WidgetProvider();
-                        IntentFilter filter = new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION);
-                        filter.addAction(WIDGET_CLICK);
-                        getApplicationContext().registerReceiver(br,filter);
-
-                        //String channelId = pref.getString("channelId","");
-                        //Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://www.youtube.com/channel/"+channelId)).setPackage("com.google.android.youtube");
-                        Intent intent = new Intent(WIDGET_CLICK);
-                        intent.putExtra("Widget Id", appWidgetId);
-                        PendingIntent pendingIntent = PendingIntent.getBroadcast(context,appWidgetId,intent,PendingIntent.FLAG_IMMUTABLE);
-                        //PendingIntent pendingIntent = PendingIntent.getActivity(context,0,intent,0);
-
-
-
-                        // 앱구성을 완료한다.
-                        AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(context);
-                        RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.widget_layout);
-                        views.setOnClickPendingIntent(R.id.widget_layout,pendingIntent);
-                        views.setImageViewBitmap(R.id.widget_layout, mCroppedBitmap);
-                        views.setViewVisibility(R.id.widget_layout_notification,View.INVISIBLE);
-
-                        appWidgetManager.updateAppWidget(appWidgetId,views);
-                        Log.d(TAG,"앱구성을 완료함");
-
-                        // 앱 구성 반환 인텐트를 만든다.
-                        Intent resultValue = new Intent();
-                        resultValue.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId);
-                        setResult(RESULT_OK, resultValue);
-                        Log.d(TAG,"앱 구성 반환 인텐트를 설정 완료하고 구성액티비티 종료함");
-                        finish();
                     }
                 });
                 Log.d(TAG,"리사이클러뷰 리스너 등록 완료");

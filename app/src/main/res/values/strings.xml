@@ -1,25 +1,24 @@
 <resources>
-    <string name="app_name">TUBEGET</string>
-    <string name="channel_select_toolbar">Select a channel to add widget</string>
-    <string name="dialog_reset_account">You\'ll lose widgets of homescreen</string>
+    <string name="app_name" translatable="false">TUBEGET</string>
+    <string name="channel_select_toolbar">Select a channel to add</string>
+    <string name="dialog_reset_account">You\'ll lose widgets of the homescreen</string>
     <string name="dialog_reset_account_yes">Reset</string>
     <string name="dialog_reset_account_no">Cancel</string>
-    <string name="title_activity_main">TUBEGET</string>
-    <string name="navigation_drawer_open">Open navigation drawer</string>
-    <string name="navigation_drawer_close">Close navigation drawer</string>
-    <string name="nav_header_title">Android Studio</string>
-    <string name="nav_header_subtitle">android.studio@android.com</string>
-    <string name="nav_header_desc">Navigation header</string>
-    <string name="action_settings">Settings</string>
-
-    <string name="menu_channels">Channels</string>
-    <string name="menu_playlist">Playlist</string>
-    <string name="menu_slideshow">Slideshow</string>
-    <string name="menu_tools">Tools</string>
-    <string name="menu_share">Share</string>
-    <string name="menu_send">Send</string>
-    <string name="title_activity_share">ShareActivity</string>
-    <string name="title_Channels">Channels</string>
-    <string name="title_dashboard">Dashboard</string>
-    <string name="title_notifications">Notifications</string>
+    <string name="hello_blank_fragment" translatable="false">Hello this is my blank Fragment</string>
+    <string name="title_activity_main" translatable="false">TubeManager</string>
+    <string name="title_activity_share" translatable="false">TubeManager</string>
+    <string name="cancel_message">No channel added</string>
+    <string name="channel_saved">Channel Added Successfully</string>
+    <string name="alert_file_exist">No channel added, It already exists</string>
+    <string name="create_new_folder">Create new folder</string>
+    <string name="create_new_folder_message">Name</string>
+    <string name="confirm">Confirm</string>
+    <string name="cancel">Cancel</string>
+    <string name="edit">Edit</string>
+    <string name="delete">Delete</string>
+    <string name="cannot_change">Changing channel title is not available</string>
+    <string name="action_new_folder">Create New Folder</string>
+    <string name="action_settings">Setting</string>
+    <string name="action_account">Change Google Account</string>
+    <string name="alert_select_folder">Choose Folder. Not a channel.</string>
 </resources>
